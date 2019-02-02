@@ -12,4 +12,4 @@ bin/www
 ```
 ### running on port: `3000`
 
-test staging branch
+test branch
