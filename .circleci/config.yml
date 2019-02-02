@@ -28,7 +28,7 @@ jobs:
               docker build -t banlungtony/express:${CIRCLE_SHA1} .
               docker push banlungtony/express:latest
               docker push banlungtony/express:${CIRCLE_SHA1}
-            elif [ "${CIRCLE_BRANCH}" == "master" ]; then
+            elif [ "${CIRCLE_BRANCH}" == "staging" ]; then
               docker build -t banlungtony/express:latest .
               docker push banlungtony/express:latest
             else
