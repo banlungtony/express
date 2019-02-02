@@ -22,11 +22,18 @@ jobs:
       - run:
           name: "Build docker image and push to docker hub"
           command: |
-            cp Dockerfile.production Dockerfile
-            docker build -t banlungtony/express:latest .
-            docker build -t banlungtony/express:${CIRCLE_SHA1} .
-            docker push banlungtony/express:latest
-            docker push banlungtony/express:${CIRCLE_SHA1}
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              cp Dockerfile.production Dockerfile
+              docker build -t banlungtony/express:latest .
+              docker build -t banlungtony/express:${CIRCLE_SHA1} .
+              docker push banlungtony/express:latest
+              docker push banlungtony/express:${CIRCLE_SHA1}
+            elif [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker build -t banlungtony/express:latest .
+              docker push banlungtony/express:latest
+            else
+              echo "This is ${CIRCLE_BRANCH}"
+            fi
       - run:
           name: "Deploy"
           command: |
