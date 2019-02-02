@@ -22,8 +22,8 @@ jobs:
       - run:
           name: "Build docker image and push to docker hub"
           command: |
+            cp Dockerfile.production Dockerfile
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              cp Dockerfile.production Dockerfile
               docker build -t banlungtony/express:latest .
               docker build -t banlungtony/express:${CIRCLE_SHA1} .
               docker push banlungtony/express:latest
@@ -32,11 +32,12 @@ jobs:
               docker build -t banlungtony/express:latest .
               docker push banlungtony/express:latest
             else
-              echo "This is ${CIRCLE_BRANCH}"
+              echo "End Build Docker => This is ${CIRCLE_BRANCH} branch"
             fi
       - run:
           name: "Deploy"
           command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker run --rm -it \
               -e CATTLE_ACCESS_KEY="$CATTLE_ACCESS_KEY" \
               -e CATTLE_SECRET_KEY="$CATTLE_SECRET_KEY" \
@@ -46,4 +47,7 @@ jobs:
               --batch_size 3 --start_first \
               --auto_complete --timeout 600 \
               /
+            else
+              echo "Do not deploy => This is ${CIRCLE_BRANCH} branch"
+            fi
       - run: echo Done
