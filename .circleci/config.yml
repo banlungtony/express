@@ -51,7 +51,7 @@ jobs:
       - run: npm test
       - run: echo "Test Done"
   
-  deploy:
+  deploy-prod:
     docker:
       - image: circleci/node:8.11.1-stretch
     steps:
@@ -83,7 +83,14 @@ workflows:
       - build:
           requires:
             - test
-      - deploy:
+          filters:
+            branches:
+              - dev
+              - uat
+              - prod
+              - master
+              - /feature-.*/
+      - deploy-prod:
           type: approval
           requires:
             - build
