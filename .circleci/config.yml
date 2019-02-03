@@ -12,10 +12,6 @@ jobs:
             # fallback 
             - v1-dependencies-
       - run: npm install
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
       - run: npm test
       - setup_remote_docker
       - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
@@ -34,6 +30,33 @@ jobs:
             else
               echo "End Build Docker => This is ${CIRCLE_BRANCH} branch"
             fi
+      - run: echo "Build Done"
+  
+  test:
+    docker:
+      - image: circleci/node:8.11.1-stretch
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback 
+            - v1-dependencies-
+      - run: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: npm test
+      - run: echo "Test Done"
+  
+  deploy-prod:
+    docker:
+      - image: circleci/node:8.11.1-stretch
+    steps:
+      - setup_remote_docker
+      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - run:
           name: "Deploy"
           command: |
@@ -44,10 +67,35 @@ jobs:
               -e CATTLE_URL="$CATTLE_URL" \
               etlweather/gaucho upgrade $RANCHER_EXAMPLE_NODEJS \
               --imageUuid 'docker:banlungtony/express:latest' \
-              --batch_size 3 --start_first \
+              --batch_size 5 --start_first \
               --auto_complete --timeout 600 \
               /
             else
               echo "Do not deploy => This is ${CIRCLE_BRANCH} branch"
             fi
-      - run: echo Done
+      - run: echo "Deploy Done"
+
+workflows:
+  version: 2
+  test_build_deploy:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - dev
+                - uat
+                - prod
+                - master
+                - /feature-.*/
+      - deploy-prod:
+          type: approval
+          requires:
+            - build
+            - test
+          filters:
+            branches:
+              only: master
