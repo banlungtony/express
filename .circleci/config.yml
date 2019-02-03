@@ -31,6 +31,7 @@ jobs:
               echo "End Build Docker => This is ${CIRCLE_BRANCH} branch"
             fi
       - run: echo "Build Done"
+  
   test:
     docker:
       - image: circleci/node:8.11.1-stretch
@@ -49,6 +50,7 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
       - run: npm test
       - run: echo "Test Done"
+  
   deploy:
     docker:
       - image: circleci/node:8.11.1-stretch
@@ -72,6 +74,7 @@ jobs:
               echo "Do not deploy => This is ${CIRCLE_BRANCH} branch"
             fi
       - run: echo "Deploy Done"
+
 workflows:
   version: 2
   test_build_deploy:
@@ -85,3 +88,6 @@ workflows:
           requires:
             - build
             - test
+          filters:
+            branches:
+              only: master
