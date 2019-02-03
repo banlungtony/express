@@ -36,7 +36,7 @@ jobs:
     docker:
       - image: circleci/node:8.11.1-stretch
     working_directory: ~/repo
-    step:
+    steps:
       - checkout
       - restore_cache:
           keys:
@@ -54,7 +54,7 @@ jobs:
   deploy:
     docker:
       - image: circleci/node:8.11.1-stretch
-    step:
+    steps:
       - setup_remote_docker
       - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - run:
