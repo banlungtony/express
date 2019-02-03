@@ -85,11 +85,12 @@ workflows:
             - test
           filters:
             branches:
-              - dev
-              - uat
-              - prod
-              - master
-              - /feature-.*/
+              only:
+                - dev
+                - uat
+                - prod
+                - master
+                - /feature-.*/
       - deploy-prod:
           type: approval
           requires:
